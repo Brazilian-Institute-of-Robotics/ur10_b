@@ -1,0 +1,22 @@
+<launch>
+
+  <include file="$(find test_moveit_ur10)/launch/planning_context.launch" />
+  <!-- Position Coordinates -->
+  <arg name="x"/>
+  <param name="x" value="$(arg x)"/>
+
+  <arg name="y"/>
+  <param name="y" value="$(arg y)"/>
+
+  <arg name="z"/>
+  <param name="z" value="$(arg z)"/>
+
+  <arg name="w"/>
+  <param name="w" value="$(arg w)"/>
+
+  <node name="scene" pkg="test_moveit_ur10" type="scene" respawn="false" output="screen"
+  args="x, y, z">
+  <remap from="/joint_states" to="/joint_states" />
+  </node>
+
+</launch>
