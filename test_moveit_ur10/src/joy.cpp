@@ -12,10 +12,19 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <geometry_msgs/Point.h>
 
-void chatterCallback(const geometry_msgs::Pose::ConstPtr& msg);
+#include <math.h>
+#include "sensor_msgs/Joy.h"
+#include "std_msgs/Float64.h"
+
+void chatterCallback(const sensor_msgs::JoyConstPtr& msg);
 
 double X, Y, Z;
 static bool cout = false;
+ros::Publisher Axis;
+double A;
+int UpDown = 0;
+int LeftRight = 0;
+int initPose = 0;
     
 int main(int argc, char** argv){
 
@@ -85,7 +94,9 @@ int main(int argc, char** argv){
      namespace rvt = rviz_visual_tools;
      moveit_visual_tools::MoveItVisualTools visual_tools(move_group.getPlanningFrame());
      visual_tools.trigger();
-     ros::Subscriber sub = nh.subscribe("goal", 1, chatterCallback);
+
+     Axis = nh.advertise<geometry_msgs::Pose>("goal", 1);
+     ros::Subscriber sub = nh.subscribe<sensor_msgs::Joy>("/joy", 1, chatterCallback);
      ros::Rate rate(10);
      while(ros::ok()) {
           if(cout) {
@@ -103,16 +114,11 @@ int main(int argc, char** argv){
 
                move_group.setPoseTarget(goal); 
                //          /----------------------------------------------------------
-               moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-               bool success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-               ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", success ? "SUCESS" : "FAILED");
-
-                    if(success == true){
-                         sleep(2.5);
+                    
 
             //execute the trajectory
                          move_group.move();
-                    }
+               
                cout = false;
           }
           ros::spinOnce();     
@@ -120,10 +126,77 @@ int main(int argc, char** argv){
      }
 }
 
-void chatterCallback(const geometry_msgs::Pose::ConstPtr& msg){
+void chatterCallback(const sensor_msgs::JoyConstPtr& msg) {
      cout = true;
-     X = msg->position.x;
-     Y = msg->position.y;
-     Z = msg->position.z;
-    
+     geometry_msgs::Pose pose;
+     //pose.position.x = msg->axes[0]*0.8;
+     //pose.position.y = msg->axes[1]*0.8;
+     //pose.position.z = msg->axes[4]*0.8;
+     UpDown = msg->axes[7]; // +1/-1
+     LeftRight = msg->axes[6]; // +1/-1
+     initPose = msg->buttons[1];
+
+     if(initPose == 1){ // Up
+          X = 0.5;
+          Y = 0.5;
+          Z = 0.4;
+     }
+
+     if(UpDown == 1){ // Up
+          X = 0.5;
+          Y = 0.5;
+          Z = Z + 0.2;
+          if(Z > 0.9) Z = 0.9; 
+          
+     }
+     else if(UpDown == -1){ // Down
+          X = X;
+          Y = Y;
+          Z = Z - 0.15;
+          if(Z < 0.2) Z = 0.2; 
+     }
+     else if(LeftRight == 1){ // Left Y > X
+          if (X > 0){
+               X = X - 0.1;
+               Y = Y + 0.1;
+               Z = Z;
+               if (Y > 0.8) Y = 0.8;
+          }
+          else if(X < 0){
+          X = X - 0.1;
+          Y = Y - 0.1;
+          Z = Z;
+               if (X < -0.8) X = -0.8;
+          }
+          else if(Y < 0){
+          X = X + 0.1;
+          Y = Y - 0.1;
+          Z = Z;
+               if (Y < -0.8) Y = -0.8;
+          }
+     }
+     else if(LeftRight == -1){ // Right X > Y
+          if (Y > 0){
+               X = X + 0.1;
+               Y = Y - 0.1;
+               Z = Z;
+               if (X > 0.9) X = 0.8;
+          }
+          else if(X < 0){
+          X = X - 0.1;
+          Y = Y + 0.1;
+          Z = Z;
+               if (X < -0.9) X = -0.8;
+          }
+     }
+
+     pose.orientation.x = 0;
+     pose.orientation.y = 0;
+     pose.orientation.z = 0;
+     pose.orientation.w = 1.0;
+     //X = msg->position.x;
+     //Y = msg->position.y;
+     //Z = msg->position.z;
+     Axis.publish(pose);
+     
 }
