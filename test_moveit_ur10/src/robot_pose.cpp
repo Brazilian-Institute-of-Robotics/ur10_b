@@ -15,6 +15,7 @@
 void chatterCallback(const geometry_msgs::Pose::ConstPtr& msg);
 
 double X, Y, Z;
+double A, B, C, W;
 static bool cout = false;
     
 int main(int argc, char** argv){
@@ -91,7 +92,7 @@ int main(int argc, char** argv){
           if(cout) {
                tf::Pose t_goal;
                t_goal.setOrigin( tf::Vector3(X, Y, Z) );
-               t_goal.setRotation( tf::Quaternion(0.00172, 0.99999, 0.000001, -0.000001));
+               t_goal.setRotation( tf::Quaternion(A, B, C, W));
 
                geometry_msgs::Pose goal;
 
@@ -108,7 +109,7 @@ int main(int argc, char** argv){
                //ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", success ? "SUCESS" : "FAILED");
 
                     //if(success == true){
-                         //sleep(2.5);
+                         sleep(2.5);
 
             //execute the trajectory
                          move_group.move();
@@ -125,5 +126,8 @@ void chatterCallback(const geometry_msgs::Pose::ConstPtr& msg){
      X = msg->position.x;
      Y = msg->position.y;
      Z = msg->position.z;
-     
+     A = msg->orientation.x;
+     B = -msg->orientation.y;
+     C = msg->orientation.z;
+     W = msg->orientation.w;
 }
