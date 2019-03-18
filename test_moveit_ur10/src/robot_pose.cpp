@@ -83,7 +83,7 @@ int main(int argc, char** argv){
 
      //Visualization:
      namespace rvt = rviz_visual_tools;
-     moveit_visual_tools::MoveItVisualTools visual_tools(move_group.getPlanningFrame());
+     moveit_visual_tools::MoveItVisualTools visual_tools("wrist_3_link");
      visual_tools.trigger();
      ros::Subscriber sub = nh.subscribe("goal", 1, chatterCallback);
      ros::Rate rate(10);
@@ -91,7 +91,7 @@ int main(int argc, char** argv){
           if(cout) {
                tf::Pose t_goal;
                t_goal.setOrigin( tf::Vector3(X, Y, Z) );
-               t_goal.setRotation( tf::Quaternion(-0.5832, 0.6325, 0.41627, 0.41628));
+               t_goal.setRotation( tf::Quaternion(0.00172, 0.99999, 0.000001, -0.000001));
 
                geometry_msgs::Pose goal;
 
@@ -103,16 +103,16 @@ int main(int argc, char** argv){
 
                move_group.setPoseTarget(goal); 
                //          /----------------------------------------------------------
-               moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-               bool success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-               ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", success ? "SUCESS" : "FAILED");
+               //moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+               //bool success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+               //ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", success ? "SUCESS" : "FAILED");
 
-                    if(success == true){
-                         sleep(2.5);
+                    //if(success == true){
+                         //sleep(2.5);
 
             //execute the trajectory
                          move_group.move();
-                    }
+                    //}
                cout = false;
           }
           ros::spinOnce();     
@@ -125,5 +125,5 @@ void chatterCallback(const geometry_msgs::Pose::ConstPtr& msg){
      X = msg->position.x;
      Y = msg->position.y;
      Z = msg->position.z;
-    
+     
 }

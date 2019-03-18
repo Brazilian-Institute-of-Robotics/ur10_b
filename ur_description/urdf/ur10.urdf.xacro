@@ -301,14 +301,14 @@
     </link>
 
 <!-- Camera dimentions -->
-    <xacro:property name="camera_link" value="0.05" />
+    <xacro:property name="camera_link" value="0.02" />
     <xacro:property name="height_camera" value="0.2"/>
     <xacro:property name="axel_offset" value="0.05"/>
 
     <joint name="camera_joint" type="fixed">
     <axis xyz="0 0 0" />
-    <origin xyz="${camera_link} 0 ${height_camera - axel_offset*2}" rpy="0 0 0"/>
-    <parent link="shoulder_link"/>
+    <origin xyz="0.01 0 0" rpy="3.1415 0 1.5707"/>
+    <parent link="ee_link"/>
     <child link="camera_link"/>
   </joint>
 
